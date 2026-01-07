@@ -1,0 +1,35 @@
+version: "3.1"
+
+rules:
+  - rule: 意图置信度低时进行询问
+    steps:
+      - intent: nlu_fallback
+      - action: utter_rephrase
+
+  - rule: 告别
+    steps:
+      - intent: goodbye
+      - action: utter_goodbye
+      - action: action_restart # 重置对话，包括在此期间设置的任何槽
+      - active_loop: null # 关闭激活的表单循环
+      - action: action_listen # 不执行任何动作，等待用户输入
+
+  - rule: 询问天气，开启表单
+    steps:
+      - intent: ask_weather # 出现询问天气的意图
+      - action: weather_form # 执行表单动作
+      - active_loop: weather_form # 表单处于激活状态
+
+  # 当表单处于活动状态时，对话机器人将根据表单的定义方式进行预测，而忽略规则，直到：
+  #   表单填充了所有必须的槽
+  #   表单拒绝执行
+  # 当表单处于活动状态时，如果用户的输入未填充请求的槽，则表单动作的执行将被拒绝
+  - rule: 表单填写完毕后提交
+    condition: # 规则触发需要满足的条件
+      - active_loop: weather_form # 该表单处于激活状态
+    steps:
+      - action: weather_form # 执行表单动作
+      - active_loop: null # 表单全部填充后不再处于激活状态
+      - slot_was_set: # 槽事件
+          - requested_slot: null # 表示所有必要槽位已填满，无需进一步请求
+      - action: action_weather_form_submit # 执行自定义提交表单动作

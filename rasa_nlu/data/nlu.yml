@@ -1,0 +1,118 @@
+version: "3.1"
+nlu:
+  - intent: greet
+    examples: |
+      - 你好
+      - 您好
+      - 哈喽
+      - hello
+      - 嗨
+      - hi
+      - 喂
+      - 在么
+
+  - intent: goodbye
+    examples: |
+      - 再见
+      - 拜拜
+      - 拜
+      - bye
+      - 退出
+      - 结束
+      - 不用了
+      - 谢谢
+      - stop
+      - 行，谢谢
+
+  - intent: who_are_you
+    examples: |
+      - 你是谁啊
+      - 你是谁
+      - 你是机器人吗
+      - 你是人吗
+      - 你能做些什么
+      - 你叫什么名字
+      - 你是什么AI
+      - 你是？
+
+  - intent: ask_weather
+    examples: |
+      - 天气
+      - 查天气
+      - 天气怎么样
+      - 我想查看天气
+      - 我想知道[今天](date)的天气
+      - [今天](date)的
+      - [明天](date)的
+      - [后天](date)的
+      - [今天](date)的天气怎么样
+      - [明天](date)的天气怎么样
+      - [后天](date)的天气怎么样
+      - [今天](date)的天气
+      - [明天](date)的天气
+      - [后天](date)的天气
+      - [周五](date)的天气
+      - [北京](location)会不会阴雨
+      - [上海](location)什么天气
+      - [北京](location)的
+      - [上海](location)的
+      - [杭州](location)
+      - 不好意思可以帮我查[香港](location)的天气
+      - [厦门](location)啥天气
+      - [上海](location)多热
+      - [台北市](location)温度
+      - [台南市](location)几度
+      - [上海](location)啥温度
+      - [台南市南区](location)现在几度
+      - [上海](location)的天气
+      - [北京](location)的天气
+      - [上海](location)的天气怎么样
+      - [北京](location)的天气怎么样
+      - 我要[上海](location)[明天](date)的天气
+      - 我要[北京](location)[后天](date)的天气
+      - 我想看[北京](location)[下周一](date)的天气
+      - [上海](location)[明天](date)的天气
+      - [上海](location)[昨天](date)的天气
+      - [上海](location)[前天](date)的天气
+      - [上海](location)[后天](date)的天气
+      - [下个星期五](date)[南京](location)的天气
+      - [明天](date)[北京](location)什么天气
+      - [沈阳](location)[五天后](date)的天气怎么样
+      - [下星期一](date)[北京](location)的天气呢
+      - [今天](date)[天津](location)的预报
+
+  - synonym: 今天
+    examples: |
+      - 当日
+      - 今日
+      - 本日
+      - 这一天
+      - 这天
+      - 当天
+      - 早上
+      - 上午
+      - 今早
+      - 本日早上
+      - 中午
+      - 下午
+      - 晚上
+      - 傍晚
+
+  - synonym: 明天
+    examples: |
+      - 明日
+      - 明晚
+      - 第二天
+      - 一天后
+      - 明天晚上
+      - 明天下午
+      - 下一天
+      - 后一天
+
+  - synonym: 后天
+    examples: |
+      - 两天后
+      - 第三天
+      - 后天早上
+      - 后天下午
+      - 后天晚上

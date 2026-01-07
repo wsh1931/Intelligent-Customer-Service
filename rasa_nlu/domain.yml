@@ -1,0 +1,80 @@
+version: "3.1"
+
+# 意图：这里针对用户消息设置了四种意图，对于每种意图机器人会做出不同的反应
+intents:
+ - greet # 打招呼
+ - goodbye # 告别
+ - who_are_you # 询问身份
+ - ask_weather # 询问天气
+
+# 实体：从用户消息中要抽取的内容，这里抽取地点和日期用与查询天气
+entities:
+ - location # 地点
+ - date # 日期
+
+# 槽：记忆用户提供的信息或有关的外部信息。槽的属性包括槽类型type和槽映射mapping
+# 这里使用文本类型槽，并使用实体来填充槽
+slots:
+ location: # 槽名称：地点
+  type: text # 槽类型：文本
+  mappings: # 槽映射
+   - type: from_entity # 根据实体填充槽
+     entity: location # 实体名称：日期
+ date: # 槽名称：日期
+  type: text # 槽类型：文本
+  mappings: # 槽映射
+   - type: from_entity # 根据实体填充槽
+     entity: date # 实体名称：日期
+
+# 表单：是一种特殊的动作，用于从用户消息中收集信息
+# 表单后续会在故事或规则中使用，以在对话中提取信息填充到槽中，并在填充完毕后执行其他动作
+# 这里定义一个天气表单，用于从用户消息中收集地点和日期信息
+# 一旦表单动作第一次被调用，表单就会被激活并提示用户输入下一个所需的槽
+# 它通过查找名为 utter_ask_<form_name>_<slot_name> 或 utter_ask_<slot_name> 的响应来执行此动作
+# 确保在领域文件中为每个必须的槽定义这些响应
+forms:
+ weather_form:
+  required_slots: # 指定槽名称
+   - location # 地点
+   - date # 日期
+
+# 响应：机器人发送给用户的消息，通常只有文本，不过也可以包括图像和按钮
+# 一个响应可以只有一种文本，也可以包含多种文本
+# 对于打招呼、告别、询问身份三种意图，分别定义了 utter_greet、utter_goodbye、utter_iamabot 三种响应
+# 对于询问天气信息意图，我们需要询问地点和日期，因此定义了 utter_ask_location、utter_ask_date 两种响应
+# 此外，如果用户消息意图置信度较低，我们会将其分类到 nlu_fallback 意图，并使用 utter_rephrase 进行响应
+responses:
+ utter_greet: # 打招呼
+  - text: "你好，有什么可以帮你的吗？"
+  - text: "你好，很高兴为你服务！"
+
+ utter_goodbye: # 告别
+  - text: "再见，祝你生活愉快！"
+  - text: "再见！"
+
+ utter_iamabot: # 自我介绍
+  - text: "我是天气助手，可以帮助你查询天气信息。"
+
+ utter_ask_location: # 询问地点
+  - text: "请问你要查询哪个城市的天气信息？"
+
+ utter_ask_date: # 询问日期
+  - text: "请问你要查询哪一天的天气信息？"
+
+ utter_rephrase: # 重述
+  - text: "什么意思呢，能再说一遍吗？"
+  - text: "不好意思，我没有理解你的意思。"
+
+# 动作：机器人执行的操作，如回复用户或调用外部api等
+# 动作定义在actions目录下，并在domain.yml中声明
+# 这里定义两个动作，分别用于提交天气表单和回退
+# 提交天气表单动作用与在表单全部填充后执行天气查询，并返回用户天气查询结果
+# 回退动作在策略置信度低时执行。某些情况下虽然能准确分类用户意图，但无法确定接下来的策略，这时我们调用回退动作
+actions:
+ - action_weather_form_submit # 提交天气表单
+ - action_fallback # 回退，策略置信度低时执行
+
+# 会话配置
+session_config:
+ session_expiration_time: 5 # 会话超时时间，分钟
+ carry_over_slots_to_new_session: true # 是否将槽转移到新会话

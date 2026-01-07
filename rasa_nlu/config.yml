@@ -1,0 +1,37 @@
+# recipe 键允许不同类型的配置和模型架构，目前支持 default.v1 和实验性的 graph.v1
+recipe: default.v1
+
+# assistant_id 键必须指定一个唯一值，以区分部署中的多个助手
+# 如果配置文件未包含此必需键或未替换默认占位符，则每次运行 rasa train 时都会生成一个随机助手名称并将其添加到配置中
+assistant_id: weather_bot
+
+# 语言
+language: zh
+
+# pipeline 键定义组件用于nlu预测
+pipeline:
+ - name: JiebaTokenizer # 分词器
+ - name: LanguageModelFeaturizer # 使用预训练语言模型进行特征提取
+   model_name: bert
+   model_weights: models/bert-base-chinese
+ - name: DIETClassifier # 同时进行意图识别和实体识别
+   epochs: 100
+   learning_rate: 0.001
+   constrain_similarities: true # 启用约束相似度，分布在 0 到 1 之间
+ - name: EntitySynonymMapper # 同义实体映射到同一个值
+ - name: FallbackClassifier # 回退分类器，当意图置信度低或两意图置信度相近时，预测为 nlu_fallback 意图
+   threshold: 0.7 # 置信度阈值，所有意图的最高置信度低于 0.7，触发 nlu_fallback
+   ambiguity_threshold: 0.1 # 歧义阈值，置信度最高的两个意图相差小于 0.1，也会触发 nlu_fallback
+
+# policies 键定义组件用于策略预测
+policies:
+  - name: MemoizationPolicy # 记忆策略，用于缓存先前处理过的对话，以加快预测速度
+  - name: RulePolicy # 规则策略，用于处理特定于应用程序的规则
+  # 策略置信度低时，将执行 action_fallback 动作
+    core_fallback_threshold: 0.7
+    core_fallback_action_name: "action_fallback"
+    enable_fallback_prediction: True
+  - name: TEDPolicy # Transformer Embedding Dialogue 嵌入对话策略。通过对历史对话，学习如何预测对话中的下一个动作
+    max_history: 5 #用于预测下一个 action 的对话历史步数
+    epochs: 100
+    constrain_similarities: true

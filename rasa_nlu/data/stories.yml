@@ -1,0 +1,40 @@
+version: "3.1"
+
+stories:
+  - story: 打招呼
+    steps:
+      - intent: greet
+      - action: utter_greet
+
+  - story: 自我介绍
+    steps:
+      - intent: who_are_you
+      - action: utter_iamabot
+
+  - story: 询问天气穿插打招呼和自我介绍
+    steps:
+      - intent: greet
+      - action: utter_greet
+      - intent: who_are_you
+      - action: utter_iamabot
+      - intent: ask_weather
+      - action: weather_form
+      - active_loop: weather_form
+      - intent: greet
+      - action: utter_greet
+      - intent: ask_weather
+        entities:
+          - location: 北京
+      - action: weather_form
+      - intent: who_are_you
+      - action: utter_iamabot
+      - intent: ask_weather
+        entities:
+          - date: 明天
+      - action: weather_form
+      - active_loop: null
+      - slot_was_set:
+          - requested_slot: null
+      - action: action_weather_form_submit
+      - intent: greet
+      - action: utter_greet

@@ -1,0 +1,57 @@
+{
+  "type": "MaxHistoryTrackerFeaturizer",
+  "state_featurizer": {
+    "action_texts": [],
+    "entity_tag_specs": [],
+    "feature_states": {
+      "intent": {
+        "ask_weather": 0,
+        "back": 1,
+        "goodbye": 2,
+        "greet": 3,
+        "nlu_fallback": 4,
+        "out_of_scope": 5,
+        "restart": 6,
+        "session_start": 7,
+        "who_are_you": 8
+      },
+      "action_name": {
+        "action_listen": 0,
+        "action_restart": 1,
+        "action_session_start": 2,
+        "action_default_fallback": 3,
+        "action_deactivate_loop": 4,
+        "action_revert_fallback_events": 5,
+        "action_default_ask_affirmation": 6,
+        "action_default_ask_rephrase": 7,
+        "action_two_stage_fallback": 8,
+        "action_unlikely_intent": 9,
+        "action_back": 10,
+        "...": 11,
+        "action_extract_slots": 12,
+        "action_weather_form_submit": 13,
+        "action_fallback": 14,
+        "utter_ask_date": 15,
+        "utter_ask_location": 16,
+        "utter_goodbye": 17,
+        "utter_greet": 18,
+        "utter_iamabot": 19,
+        "utter_rephrase": 20,
+        "weather_form": 21
+      },
+      "entities": {
+        "date": 0,
+        "location": 1
+      },
+      "slots": {
+        "location_0": 0,
+        "date_0": 1
+      },
+      "active_loop": {
+        "weather_form": 0
+      }
+    }
+  },
+  "remove_duplicates": true,
+  "max_history": 5
+}
