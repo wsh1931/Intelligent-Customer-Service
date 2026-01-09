@@ -1,8 +1,32 @@
+# 流程
 flows:
-  transfer_money:
-    description: Help users send money to friends and family.
-    steps:
-      - collect: recipient
-      - collect: amount
-        description: the number of US dollars to send
-      - action: utter_transfer_complete
+  transfer_money: # 流程id，流程的唯一标识
+    name: 转账流程 # 流程名称，可选
+    description: 帮助用户转账 # 流程描述，描述流程的功能，对话理解组件使用它来决定何时启动此流程
+    steps: # 流程步骤
+      - collect: recipient # 收集步骤：转账接收人。信息收集到槽中
+        # 默认情况下会查找名为 utter_ask_{slot_name} 的响应来执行 collect 步骤
+        # 也可以通过在该步骤中添加 utter 属性来使用具有不同键的响应，比如：
+        # utter: utter_xxx
+        description: 转账接收人 # 步骤描述，可选，但可以帮助rasa更可靠地提取槽值
+      - collect: amount # 收集步骤：转账金额。信息收集到槽中
+        description: 转账金额
+      - action: action_check_sufficient_funds # 动作步骤：检查余额
+        next: # next用于指示该步骤之后要执行步骤的id，也可以在next下列出步骤来创建嵌套结构
+          - if: not slots.has_sufficient_funds # 分支：如果槽中值为false
+            then:
+              - action: utter_insufficient_funds # 执行动作：发送消息余额不足
+                next: END # 流程结束
+          - else: final_confirmation
+      - collect: final_confirmation # 收集步骤：最终确认。信息收集到槽中
+        id: final_confirmation # 步骤id，用于在分支中引用该步骤
+        ask_before_filling: true # 强制slot填充，避免根据上轮对话自动填充
+        next: # next用于指示该步骤之后要执行步骤的id，也可以在next下列出步骤来创建嵌套结构
+          - if: not slots.final_confirmation # 分支：如果槽中值为false
+            then:
+              - action: utter_transfer_cancelled # 执行动作：发送消息转账取消
+                next: END # 流程结束
+          - else: action_transfer
+      - action: action_transfer # 动作步骤：执行转账
+        id: action_transfer
+      - action: utter_transfer_complete # 动作步骤：发送消息转账完成

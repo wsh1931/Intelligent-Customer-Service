@@ -1,35 +1,64 @@
 version: "3.1"
 
+# 槽
 slots:
-  recipient:
-    type: text
-    mappings:
-      - type: from_llm
-  amount:
-    type: float
+  recipient: # 收款人
+    type: text # 文本类型
+    mappings: # 映射
+      - type: from_llm # 从LLM获取
+
+  amount: # 金额
+    type: float # 浮点类型
     mappings:
       - type: from_llm
 
+  final_confirmation: # 最终确认是否转账
+    type: bool # 布尔类型
+    mappings:
+      - type: from_llm
+
+  has_sufficient_funds: # 余额是否足够转账
+    type: bool
+    mappings:
+      - type: controlled # 自定义映射
+
+  balance: # 余额
+    type: float
+    initial_value: 1000.0 # 初始值
+    mappings:
+      - type: controlled
+
+# 响应
 responses:
   utter_ask_recipient:
-    - text: "Who would you like to send money to?"
+    - text: "请问收款人是谁?"
 
   utter_ask_amount:
-    - text: "How much money would you like to send?"
+    - text: "请问转账金额是多少?"
+
+  utter_ask_final_confirmation:
+    - text: "向{recipient}转账{amount}，确认转账吗?"
 
   utter_transfer_complete:
-    - text: "All done. {amount} has been sent to {recipient}."
+    - text: "向{recipient}转账{amount}，转账完毕"
+
+  utter_transfer_cancelled:
+    - text: "转账已取消"
+
+  utter_insufficient_funds:
+    - text: "余额仅剩{balance}，余额不足"
 
   utter_free_chitchat_response:
-    - text: "placeholder"
-      metadata:
-        rephrase: True
-        rephrase_prompt: |
-          The following is a conversation with an AI assistant built with Rasa.
-          The assistant can help the user transfer money.
-          The assistant is helpful, creative, clever, and very friendly.
-          The user is making small talk, and the assistant should respond, keeping things light.
-          Context / previous conversation with the user:
-          {{history}}
-          {{current_input}}
-          Suggested AI Response:
+    - text: "placeholder" # 占位符
+      metadata: # 响应附加信息
+        rephrase: True # 表示响应是否需要被重述
+        rephrase_prompt: | # 响应提示词，用于引导生成响应
+          你是一个友好的助手，能帮助用户完成转账。
+          用户在闲聊，而助手需要以轻松愉快的语调做出回应。
+          用户：{{current_input}}
+          助手：
+
+# 动作
+actions:
+  - action_check_sufficient_funds
+  - action_transfer
