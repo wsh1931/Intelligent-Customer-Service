@@ -1,0 +1,10 @@
+flows:
+  # 测试用功能
+  switch_user_id:
+    name: 切换账号
+    description: 切换账号
+    persisted_slots: # 流程结束后不重置下列槽
+      - user_id
+    steps:
+      - collect: user_id
+        description: 用户id

@@ -1,0 +1,6 @@
+flows:
+  query_logistics_companys:
+    name: 查询支持的快递公司
+    description: 查询支持的快递公司
+    steps:
+      - action: action_get_logistics_companys

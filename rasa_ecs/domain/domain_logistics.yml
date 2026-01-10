@@ -1,0 +1,3 @@
+actions:
+  # === 查询承运商 ===
+  - action_get_logistics_companys # 获取支持的承运商

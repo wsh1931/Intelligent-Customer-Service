@@ -1,0 +1,12 @@
+version: "3.1"
+slots:
+  # === 切换用户 ===
+  user_id: # 用户ID
+    type: text
+    initial_value: "1001" # 设置初始值
+    mappings:
+      - type: from_llm
+
+responses:
+  utter_ask_user_id:
+    - text: "请输入用户ID："
