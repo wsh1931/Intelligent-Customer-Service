@@ -38,3 +38,38 @@ class GetLogisticsCompanys(Action):
 
         # 发送消息不需要传，当设置slot时，必需在return中传
         return []
+
+class GetLogisticsInfo(Action):
+    """查询物流信息"""
+
+    def name(self) -> str:
+        return "action_get_logistics_info"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]
+    ) -> List[Dict[Text, Any]]:
+        # 从槽中获取订单ID
+        order_id = tracker.get_slot("order_id")
+        # 查询订单
+        with SessionLocal() as session:
+            order_info = (
+                session.query(OrderInfo)
+                .options(joinedload(OrderInfo.logistics))
+                .options(joinedload(OrderInfo.order_detail))
+                .filter_by(order_id=order_id)
+                .first()
+            )
+        # 获取订单物流信息
+        logistics = order_info.logistics[0]
+        message = [f"- **订单ID**：{order_id}"]
+        message.extend(
+            [
+                f"  - {order_detail.sku_name} × {order_detail.sku_count}"
+                for order_detail in order_info.order_detail
+            ]
+        )
+        message.append(f"- **物流ID**：{logistics.logistics_id}")
+        message.append("- **物流信息**：")
+        message.append("  - " + "\n  - ".join(logistics.logistics_tracking.split("\n")))
+        dispatcher.utter_message("\n".join(message))
+        return [SlotSet("logistics_id", logistics.logistics_id)]
