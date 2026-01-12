@@ -73,3 +73,81 @@ class GetLogisticsInfo(Action):
         message.append("  - " + "\n  - ".join(logistics.logistics_tracking.split("\n")))
         dispatcher.utter_message("\n".join(message))
         return [SlotSet("logistics_id", logistics.logistics_id)]
+    
+class AskLogisticsComplaint(Action):
+    """询问投诉内容"""
+
+    def name(self) -> str:
+        return "action_ask_logistics_complaint"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]
+    ) -> List[Dict[Text, Any]]:
+        # 从槽中获取投诉的物流单号
+        logistics_id = tracker.get_slot("logistics_id")
+        # 获取物流信息
+        with SessionLocal() as session:
+            logistics = (
+                session.query(Logistics).filter_by(logistics_id=logistics_id).first()
+            )
+        # 判断物流状态
+        logistics_status = "已发货" if logistics.delivered_time is None else "已签收"
+        # 获取该状态下可用的投诉信息
+        with SessionLocal() as session:
+            logistics_complaints = (
+                session.query(LogisticsComplaint)
+                .filter_by(logistics_status=logistics_status)
+                .all()
+            )
+        buttons = [
+            {
+                "title": f"{i.logistics_complaint}",
+                f"payload": f"/SetSlots(logistics_complaint={i.logistics_complaint})",
+            }
+            for i in logistics_complaints
+        ]
+        buttons.extend(
+            [
+                {"title": "其他", "payload": f"/SetSlots(logistics_complaint=other)"},
+                {
+                    "title": "取消投诉",
+                    "payload": f"/SetSlots(logistics_complaint=false)",
+                },
+            ]
+        )
+        dispatcher.utter_message(text="请选择要反馈的问题", buttons=buttons)
+        return []
+
+class RecordLogisticsComplaint(Action):
+    """记录投诉信息"""
+
+    def name(self) -> str:
+        return "action_record_logistics_complaint"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]
+    ) -> List[Dict[Text, Any]]:
+        events = []
+        # 从槽中获取投诉的物流ID和投诉内容
+        logistics_id = tracker.get_slot("logistics_id")
+        logistics_complaint = tracker.get_slot("logistics_complaint")
+        # 如果投诉内容为其他，从最新消息中获取
+        if logistics_complaint == "other":
+            logistics_complaint = tracker.latest_message["text"]
+            # 将投诉内容存入槽中
+            events.append(SlotSet("logistics_complaint", logistics_complaint))
+        dispatcher.utter_message(
+            text=f"已收到您反馈的 {logistics_id} 的 {logistics_complaint} 问题，我们会尽快处理"
+        )
+        # 将投诉信息存入数据库
+        with SessionLocal() as session:
+            session.add(
+                LogisticsComplaintsRecord(
+                    logistics_id=logistics_id,
+                    logistics_complaint=logistics_complaint,
+                    complaint_time=datetime.now(),
+                    user_id=tracker.get_slot("user_id"),
+                )
+            )
+            session.commit()
+        return events

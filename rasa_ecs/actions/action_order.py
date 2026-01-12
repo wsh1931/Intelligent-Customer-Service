@@ -87,3 +87,9 @@ class AskOrderId(Action):
                     OrderInfo.user_id == user_id,
                     OrderInfo.order_status == "已发货",
                 )
+            case "action_ask_order_id_shipped_delivered":
+                 # 查询已发货和已签收的订单
+                return and_(
+                    OrderInfo.user_id == user_id,
+                    OrderInfo.order_status.in_(["已发货", "已签收"]),
+                )

@@ -4,8 +4,24 @@ slots:
     type: text
     mappings:
       - type: controlled
+  # === 投诉物流 ===
+  logistics_complaint: # 物流投诉内容
+    type: text
+    mappings:
+      - type: controlled
 
-actions:
+  other_logistics_complaint: # 其他物流投诉内容
+    type: text
+    mappings:
+      - type: from_llm
+responses:
+  # === 投诉物流 ===
+  utter_ask_other_logistics_complaint:
+    - text: "请详细描述 {logistics_id} 遇到的问题"
+actions: 
   # === 查询承运商 ===
   - action_get_logistics_companys # 获取支持的承运商
   - action_get_logistics_info # 获取物流信息
+  # === 投诉物流 ===
+  - action_ask_logistics_complaint # 询问投诉的内容
+  - action_record_logistics_complaint # 记录投诉信息

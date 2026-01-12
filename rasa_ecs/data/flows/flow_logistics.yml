@@ -18,3 +18,31 @@ flows:
               - action: action_get_logistics_info # 查询此订单的物流信息
                 next: END
           - else: END
+
+  logistics_complain:
+    name: 投诉物流
+    description: 投诉物流
+    steps:
+      - set_slots: # 查询已发货和已签收的订单
+          - goto: action_ask_order_id_shipped_delivered
+      - collect: order_id # 选择一个订单
+        next:
+          - if: slots.order_id != "false"
+            then: get_logistics_info
+          - else: END
+      - id: get_logistics_info # 查询此订单的物流信息
+        action: action_get_logistics_info
+      - collect: logistics_complaint # 选择投诉内容
+        next:
+          - if: slots.logistics_complaint = "other" # 如果投诉内容为其他，询问详细投诉内容
+            then:
+              - collect: other_logistics_complaint # 询问详细投诉内容
+                description: 详细的投诉内容
+                force_slot_filling: true # 忽略任何其他命令，仅处理收集槽的命令
+              - action: action_record_logistics_complaint
+                next: END
+          - if: slots.logistics_complaint != "false"
+            then:
+              - action: action_record_logistics_complaint
+                next: END
+          - else: END
