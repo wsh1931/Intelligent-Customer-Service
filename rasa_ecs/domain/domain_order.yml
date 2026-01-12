@@ -24,3 +24,4 @@ responses:
 actions:
   # === 查询订单 ===
   - action_ask_order_id # 询问要查询的订单
+  - action_get_order_detail # 获取订单详情
