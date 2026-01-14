@@ -93,3 +93,24 @@ flows:
               - action: action_ask_set_receive_info
                 next: END
           - else: END
+            
+  cancel_order:
+    name: 取消订单
+    description: 取消订单
+    steps:
+      - set_slots: # 查询待支付或待发货的订单
+          - goto: action_ask_order_id_before_shipped
+      - collect: order_id
+        next:
+          - if: slots.order_id != "false"
+            then: get_order_detail
+          - else: END
+      - id: get_order_detail # 查询此订单的详情
+        action: action_get_order_detail
+      - collect: if_cancel_order # 询问是否取消订单
+        next:
+          - if: slots.if_cancel_order
+            then:
+              - action: action_cancel_order
+                next: END
+          - else: END

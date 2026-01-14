@@ -64,6 +64,9 @@ slots:
     type: bool
     mappings:
       - type: controlled
+  # === 取消订单 ===
+  if_cancel_order: # 是否取消订单
+    type: bool
 
 responses:
   utter_ask_user_id:
@@ -97,7 +100,14 @@ responses:
           payload: "/SetSlots(if_modify_continue=true)"
         - title: "否"
           payload: "/SetSlots(if_modify_continue=false)"
-      
+  # === 取消订单 ===
+  utter_ask_if_cancel_order:
+    - text: "是否取消此订单？"
+      buttons:
+        - title: "是"
+          payload: "/SetSlots(if_cancel_order=true)"
+        - title: "否"
+          payload: "/SetSlots(if_cancel_order=false)" 
 actions:
   # === 查询订单 ===
   - action_ask_order_id # 询问要查询的订单
@@ -108,3 +118,5 @@ actions:
   - action_ask_receive_city # 询问收货市
   - action_ask_receive_district # 询问收货区
   - action_ask_set_receive_info # 询问确认修改收货信息
+  # === 取消订单 ===
+  - action_cancel_order # 取消订单

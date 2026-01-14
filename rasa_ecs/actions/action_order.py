@@ -110,7 +110,13 @@ class AskOrderId(Action):
                     OrderInfo.order_status != "已取消",
                     OrderStatus.status_code <= 320,
                 )
-            
+            case "action_ask_order_id_before_shipped":
+                # 查询已发货之前状态的订单
+                return and_(
+                    OrderInfo.user_id == user_id,
+                    OrderInfo.order_status != "已取消",
+                    OrderStatus.status_code <= 310,
+                )
 class GetOrderDetail(Action):
     """获取订单详情"""
 
@@ -438,4 +444,26 @@ class AskSetReceiveInfo(Action):
                     {"title": "取消", "payload": "/SetSlots(set_receive_info=false)"},
                 ],
             )
+        return []
+
+class CancelOrder(Action):
+    """取消订单"""
+
+    def name(self) -> str:
+        return "action_cancel_order"
+
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict[str, Any]
+    ) -> List[Dict[Text, Any]]:
+        order_id = tracker.get_slot("order_id")
+        with SessionLocal() as session:
+            order_info = session.query(OrderInfo).filter_by(order_id=order_id).first()
+            old_order_status = order_info.order_status
+            order_info.order_status = "已取消"
+            order_info.complete_time = datetime.now()
+            session.commit()
+        message = "订单已取消"
+        if old_order_status == "待发货":
+            message += "，退款金额将在24小时内返还您的账户"
+        dispatcher.utter_message(text=message)
         return []
