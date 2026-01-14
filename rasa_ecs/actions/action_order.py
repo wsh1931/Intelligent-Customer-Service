@@ -117,6 +117,13 @@ class AskOrderId(Action):
                     OrderInfo.order_status != "已取消",
                     OrderStatus.status_code <= 310,
                 )
+            case "action_ask_order_id_after_delivered":
+                # 查询已签收、售后中、已完成的订单
+                return and_(
+                    OrderInfo.user_id == user_id,
+                    OrderInfo.order_status != "已取消",
+                    OrderStatus.status_code >= 330,
+                )
 class GetOrderDetail(Action):
     """获取订单详情"""
 
